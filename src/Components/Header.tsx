@@ -7,31 +7,31 @@ const Header = () => {
     <>
       <StyledContainer fluid>
         <StyledHeader as="h1">
-          <img src="/public/y18.svg" alt="HackerLog" />
+          <img src="/y18.svg" alt="HackerLog" />
           <HeaderContainerNavigation>
             HackerNews
             <nav>
               <ul>
                 <li>
-                  <a href="#new">new</a>
+                  <a href="#">new</a>
                 </li>
                 <li>
-                  <a href="#past">past</a>
+                  <a href="#">past</a>
                 </li>
                 <li>
-                  <a href="#comments">comments</a>
+                  <a href="#">comments</a>
                 </li>
                 <li>
-                  <a href="#ask">ask</a>
+                  <a href="#">ask</a>
                 </li>
                 <li>
-                  <a href="#show">show</a>
+                  <a href="#">show</a>
                 </li>
                 <li>
-                  <a href="#jobs">jobs</a>
+                  <a href="#">jobs</a>
                 </li>
                 <li>
-                  <a href="#submit">submit</a>
+                  <a href="#">submit</a>
                 </li>
               </ul>
             </nav>

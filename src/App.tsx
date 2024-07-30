@@ -1,5 +1,5 @@
 import Header from './Components/Header.tsx';
-import Main from './Components/Main.tsx';
+import Main from './Page/Main.tsx';
 import styled from 'styled-components';
 
 function HackerNews() {

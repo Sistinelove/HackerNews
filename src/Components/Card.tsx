@@ -1,17 +1,20 @@
 import { Container } from 'semantic-ui-react';
 import styled from 'styled-components';
-import { FeedItem } from '../type/FeedItem';
-import { applyTypography } from '../styles/Typography';
+import { FeedItem } from '../type/FeedItem.ts';
+import { applyTypography } from '../styles/Typography.ts';
+import { Link } from 'react-router-dom';
 
 const Card = ({ item, index }: { item: FeedItem; index: number }) => {
   return (
     <>
       <CardContainer>
-        <CardId>{index}</CardId>
+        <CardId>{index}. </CardId>
         <ArrowIcon src="/public/arrowUp.svg" alt="arrowUp" />
         <CardContent>
           <CardHeader>
-            <CardTitle>{item.title}</CardTitle>
+            <CardTitle>
+              <Link to={`/news/${item.id}`}>{item.title}</Link>
+            </CardTitle>
             <CardUrl>({item.domain})</CardUrl>
           </CardHeader>
           <CardFooter>
@@ -76,6 +79,10 @@ const CardUrl = styled.div`
 
 const CardTitle = styled.div`
   ${applyTypography('primaryText')}
+  link {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
 const CardPoint = styled.div`

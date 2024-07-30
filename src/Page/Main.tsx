@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { hackerNewsApi } from '../services/PostList.tsx';
 import { useEffect, useState } from 'react';
 import { FeedItem } from '../type/FeedItem.ts';
-import Card from './Card.tsx';
+import Card from '../Components/Card.tsx';
 
 const Main = () => {
   const [post, setPost] = useState<FeedItem[]>([]);
   const { data } = hackerNewsApi.useGetNewsItemsQuery();
+
   useEffect(() => {
     if (data) {
       setPost(data);
