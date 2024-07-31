@@ -7,7 +7,7 @@ import Card from '../Components/Card.tsx';
 
 const Main = () => {
   const [post, setPost] = useState<FeedItem[]>([]);
-  const { data } = hackerNewsApi.useGetNewsItemsQuery(100);
+  const { data } = hackerNewsApi.useGetNewsItemsQuery();
 
   useEffect(() => {
     if (data) {
