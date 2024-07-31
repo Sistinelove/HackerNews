@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../Components/Header';
-import { hackerNewsApi } from '../services/PostList';
+import { useGetItemsByIdQuery, useLazyGetItemsByIdQuery } from '../services/PostList';
 import { Item } from '../type/Item';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
@@ -10,14 +10,31 @@ import parse from 'html-react-parser';
 const NewsPage = () => {
   const { id } = useParams<{ id: string }>();
   const [postItem, setPostItem] = useState<Item | null>(null);
+  const [nestedComments, setNestedComments] = useState<{ [key: number]: Item[] }>({});
   const numericId = Number(id);
-  const { data, error, isLoading } = hackerNewsApi.useGetItemsByIdQuery(numericId);
+  const { data, error, isLoading } = useGetItemsByIdQuery(numericId);
+  const [trigger, result] = useLazyGetItemsByIdQuery();
 
   useEffect(() => {
     if (data) {
       setPostItem(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (result.data) {
+      setNestedComments((prev) => ({
+        ...prev,
+        [result.originalArgs!]: result.data.comments,
+      }));
+    }
+  }, [result]);
+
+  const loadNestedComments = (commentId: number) => {
+    if (!nestedComments[commentId]) {
+      trigger(commentId);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -37,6 +54,9 @@ const NewsPage = () => {
       <Container>
         <Card>
           <h1>{postItem.title}</h1>
+          <p>
+            by {postItem.user} on {new Date(postItem.time * 1000).toLocaleString()}
+          </p>
           <Content>{parse(DOMPurify.sanitize(postItem.content))}</Content>
           <p>
             <a href={postItem.url} target="_blank" rel="noopener noreferrer">
@@ -51,6 +71,21 @@ const NewsPage = () => {
                   <strong>{comment.user}</strong> {comment.time_ago}
                 </p>
                 <CommentContent>{parse(DOMPurify.sanitize(comment.content))}</CommentContent>
+                {comment.comments.length > 0 && (
+                  <button onClick={() => loadNestedComments(comment.id)}>Load nested comments</button>
+                )}
+                {nestedComments[comment.id] && (
+                  <NestedComments>
+                    {nestedComments[comment.id].map((nestedComment) => (
+                      <Comment key={nestedComment.id}>
+                        <p>
+                          <strong>{nestedComment.user}</strong> {nestedComment.time_ago}
+                        </p>
+                        <CommentContent>{parse(DOMPurify.sanitize(nestedComment.content))}</CommentContent>
+                      </Comment>
+                    ))}
+                  </NestedComments>
+                )}
               </Comment>
             ))}
           </Comments>
@@ -93,6 +128,12 @@ const Comment = styled.div`
 
 const CommentContent = styled.div`
   margin-top: 5px;
+`;
+
+const NestedComments = styled.div`
+  margin-left: 20px;
+  border-left: 1px solid #ddd;
+  padding-left: 10px;
 `;
 
 export default NewsPage;

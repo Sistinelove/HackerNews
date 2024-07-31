@@ -21,7 +21,7 @@ const Card = ({ item, index }: { item: FeedItem; index: number }) => {
             <CardPoint>points {item.points}</CardPoint>
             <p>by</p>
             <CardUser>{item.user}</CardUser>
-            <CardTime>{item.time}</CardTime>
+            <CardTime>{item.time_ago}</CardTime>
             <p>hide</p>
             <CardComments>{item.comments_count}</CardComments>
           </CardFooter>
