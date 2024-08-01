@@ -1,43 +1,25 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../Components/Header';
-import { useGetItemsByIdQuery, useLazyGetItemsByIdQuery } from '../services/PostList';
-import { Item } from '../type/Item';
-import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { applyTypography } from '../styles/Typography';
+import { useGetItemsByIdQuery } from '../services/PostList.tsx';
+import Comments from '../Components/Comments.tsx';
 
 const NewsPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [postItem, setPostItem] = useState<Item | null>(null);
-  const [nestedComments, setNestedComments] = useState<{ [key: number]: Item[] }>({});
-  const numericId = Number(id);
-  const { data, error, isLoading, refetch } = useGetItemsByIdQuery(numericId);
-  const [trigger, result] = useLazyGetItemsByIdQuery();
-  console.log(data);
+  const { data, error, isLoading, refetch } = useGetItemsByIdQuery(Number(id));
+  console.log('data', data);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   const handleRefreshComments = () => refetch();
-  useEffect(() => {
-    if (data) {
-      setPostItem(data);
-    }
-    if (result.data) {
-      setNestedComments((prev) => ({
-        ...prev,
-        [result.originalArgs as number]: result.data.comments,
-      }));
-    }
-  }, [data, result]);
-
-  const loadNestedComments = useCallback(
-    (commentId: number) => {
-      if (!nestedComments[commentId]) {
-        trigger(commentId);
-      }
-    },
-    [nestedComments, trigger],
-  );
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -47,7 +29,7 @@ const NewsPage = () => {
     return <div>Error: {error.toString()}</div>;
   }
 
-  if (!postItem) {
+  if (!data) {
     return <div>No data available</div>;
   }
 
@@ -55,47 +37,25 @@ const NewsPage = () => {
     <>
       <Header />
       <Container>
-        <BackButton as={Link} to="/news">
-          Вернуться к списку новостей
-        </BackButton>
+        <BackButton to="/news">Вернуться к списку новостей</BackButton>
         <RefrechCommentsButton onClick={handleRefreshComments}>Обновить комментарии</RefrechCommentsButton>
         <Card>
-          <h1>{postItem.title}</h1>
+          <h1>{data.title}</h1>
           <p>
-            by {postItem.user} on {new Date(postItem.time * 1000).toLocaleString()}
+            by {data.user} on {new Date(data.time * 1000).toLocaleString()}
           </p>
-          <Content>{parse(DOMPurify.sanitize(postItem.content))}</Content>
+          {data.content && <Content>{parse(data.content)}</Content>}
           <p>
-            <a href={postItem.url} target="_blank" rel="noopener noreferrer">
-              {postItem.domain}
+            <a href={data.url} target="_blank" rel="noopener noreferrer">
+              {data.domain}
             </a>
           </p>
-          <CommentsTitle>Comments ({postItem.comments_count})</CommentsTitle>
-          <Comments>
-            {postItem.comments.map((comment) => (
-              <Comment key={comment.id}>
-                <p>
-                  <strong>{comment.user}</strong> {comment.time_ago}
-                </p>
-                <CommentContent>{parse(DOMPurify.sanitize(comment.content))}</CommentContent>
-                {comment.comments.length > 0 && (
-                  <button onClick={() => loadNestedComments(comment.id)}>Load nested comments</button>
-                )}
-                {nestedComments[comment.id] && (
-                  <NestedComments>
-                    {nestedComments[comment.id].map((nestedComment) => (
-                      <Comment key={nestedComment.id}>
-                        <p>
-                          <strong>{nestedComment.user}</strong> {nestedComment.time_ago}
-                        </p>
-                        <CommentContent>{parse(DOMPurify.sanitize(nestedComment.content))}</CommentContent>
-                      </Comment>
-                    ))}
-                  </NestedComments>
-                )}
-              </Comment>
+          <CommentsTitle>Comments ({data.comments_count})</CommentsTitle>
+          <CommentsContainer>
+            {data.comments.map((comment) => (
+              <Comments key={comment.id} comment={comment} />
             ))}
-          </Comments>
+          </CommentsContainer>
         </Card>
       </Container>
     </>
@@ -124,23 +84,8 @@ const CommentsTitle = styled.h2`
   margin-top: 40px;
 `;
 
-const Comments = styled.div`
+const CommentsContainer = styled.div`
   margin-top: 20px;
-`;
-
-const Comment = styled.div`
-  border-top: 1px solid #ddd;
-  padding: 10px 0;
-`;
-
-const CommentContent = styled.div`
-  margin-top: 5px;
-`;
-
-const NestedComments = styled.div`
-  margin-left: 20px;
-  border-left: 1px solid #ddd;
-  padding-left: 10px;
 `;
 
 const BackButton = styled(Link)`
@@ -168,4 +113,5 @@ const RefrechCommentsButton = styled.button`
   padding: 5px;
   cursor: pointer;
 `;
+
 export default NewsPage;
