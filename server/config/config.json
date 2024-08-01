@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "Xaker7654321",
+    "database": "HackerNews",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password":  "Xaker7654321",
+    "database": "HackerNews",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "Xaker7654321",
+    "database": "HackerNews",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
