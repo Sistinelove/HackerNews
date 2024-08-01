@@ -1,0 +1,11 @@
+version: "1"
+services:
+  nginx-react:
+    container_name: HackerNews
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: production
