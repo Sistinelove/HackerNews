@@ -1,40 +1,43 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../Components/Header';
 import { useGetItemsByIdQuery, useLazyGetItemsByIdQuery } from '../services/PostList';
 import { Item } from '../type/Item';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
+import { applyTypography } from '../styles/Typography';
 
 const NewsPage = () => {
   const { id } = useParams<{ id: string }>();
   const [postItem, setPostItem] = useState<Item | null>(null);
   const [nestedComments, setNestedComments] = useState<{ [key: number]: Item[] }>({});
   const numericId = Number(id);
-  const { data, error, isLoading } = useGetItemsByIdQuery(numericId);
+  const { data, error, isLoading, refetch } = useGetItemsByIdQuery(numericId);
   const [trigger, result] = useLazyGetItemsByIdQuery();
+  console.log(data);
 
+  const handleRefreshComments = () => refetch();
   useEffect(() => {
     if (data) {
       setPostItem(data);
     }
-  }, [data]);
-
-  useEffect(() => {
     if (result.data) {
       setNestedComments((prev) => ({
         ...prev,
-        [result.originalArgs!]: result.data.comments,
+        [result.originalArgs as number]: result.data.comments,
       }));
     }
-  }, [result]);
+  }, [data, result]);
 
-  const loadNestedComments = (commentId: number) => {
-    if (!nestedComments[commentId]) {
-      trigger(commentId);
-    }
-  };
+  const loadNestedComments = useCallback(
+    (commentId: number) => {
+      if (!nestedComments[commentId]) {
+        trigger(commentId);
+      }
+    },
+    [nestedComments, trigger],
+  );
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -52,6 +55,10 @@ const NewsPage = () => {
     <>
       <Header />
       <Container>
+        <BackButton as={Link} to="/news">
+          Вернуться к списку новостей
+        </BackButton>
+        <RefrechCommentsButton onClick={handleRefreshComments}>Обновить комментарии</RefrechCommentsButton>
         <Card>
           <h1>{postItem.title}</h1>
           <p>
@@ -136,4 +143,29 @@ const NestedComments = styled.div`
   padding-left: 10px;
 `;
 
+const BackButton = styled(Link)`
+  ${applyTypography('primaryText')}
+  background-color: grey;
+  color: white;
+  text-decoration: none;
+  width: auto;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 5px;
+  cursor: pointer;
+`;
+
+const RefrechCommentsButton = styled.button`
+  ${applyTypography('primaryText')}
+  background-color: grey;
+  color: white;
+  text-decoration: none;
+  width: auto;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 5px;
+  cursor: pointer;
+`;
 export default NewsPage;

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Container } from 'semantic-ui-react';
 import { applyTypography } from '../styles/Typography.ts';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
@@ -9,7 +10,7 @@ const Header = () => {
         <StyledHeader as="h1">
           <img src="/y18.svg" alt="HackerLog" />
           <HeaderContainerNavigation>
-            HackerNews
+            <Link to="/news">HackerNews</Link>
             <nav>
               <ul>
                 <li>
