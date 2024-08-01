@@ -4,6 +4,7 @@ import './index.css';
 import { theme } from './styles/theme.ts';
 import { ThemeProvider } from 'styled-components';
 import HackerNews from './App.tsx';
+import App from './App.tsx';
 import { store } from './app/store.ts';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -11,6 +12,11 @@ import NewsPage from './Page/NewsPage.tsx';
 import ErrorPage from './Page/ErrorPage.tsx';
 
 const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    errorElement: <ErrorPage />,
+  },
   {
     path: '/news',
     element: <HackerNews />,
