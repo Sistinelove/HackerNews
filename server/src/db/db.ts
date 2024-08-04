@@ -1,10 +1,14 @@
 import { Sequelize } from 'sequelize-typescript';
-import News from '../model/models';
+import NewsItem from "../model/NewsItem";
 
-export const sequelize = new Sequelize('HackerNews', 'postgres', 'Xaker7564321', {
-  host: 'localhost',
+const sequelize = new Sequelize({
   dialect: 'postgres',
-  models: [News],
+  host: 'localhost',
+  port: 5432,
+  username: 'Sergey',
+  password: '123123',
+  database: 'postgres',
+  models: [NewsItem],
 });
 
 export default sequelize;
